@@ -13,8 +13,7 @@ the upstream `syncthing/syncthing` release version.
 - Architectures verified: `linux/amd64, linux/arm64` (native smoke tests + Dive efficiency gate).
 - Upstream status: refreshed base OS, dependencies, and supply-chain attestations.
 - Vulnerability gate: **0 fixable Critical/High** in Trivy and Grype (SBOM scan) (15 upstream-unfixed).
-- Published multi-arch digest (Docker Hub + GHCR): `dgcosenza/syncthing@sha256:f06382002fae2e088d8dc5c4b204b3b250dc6e9728f1e63c74bc167888d5ac6d` (Cosign OIDC signed + SPDX/CycloneDX SBOM + SLSA L3 provenance).
-
+- Published multi-arch digest (Docker Hub + GHCR): `dgcosenza/syncthing@sha256:577c5a143d8956bf5c49b14a8387852b0e42170df41d20234ab8c0ef4701739a` (Cosign OIDC signed + SPDX/CycloneDX SBOM + SLSA L3 provenance).
 ## [2.1.7] - 2026-11-25
 
 ### Changed
