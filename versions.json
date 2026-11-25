@@ -1,0 +1,12 @@
+{
+  "image": "dgcosenza/syncthing",
+  "upstream_version": "2.1.7",
+  "debian_version": "13",
+  "components": {
+    "syncthing": "v2.1.7",
+    "go": "1.27.4"
+  },
+  "last_build_date": "2026-11-24",
+  "last_digest": "",
+  "unfixed_high_critical": []
+}

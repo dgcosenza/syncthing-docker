@@ -1,0 +1,39 @@
+# Production-style compose example for dgcosenza/syncthing
+#
+# Pin production deployments by @sha256 digest and back up ./config (contains
+# device identity keys cert.pem/key.pem and config.xml) before upgrades.
+# Bind port 8384 to your management interface (e.g. 192.0.2.10) or loopback.
+
+services:
+  syncthing:
+    image: dgcosenza/syncthing:latest
+    container_name: syncthing
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "UTC"
+      UMASK_SET: "022"
+    volumes:
+      - ./config:/config
+      # - ./data:/data
+    ports:
+      - "192.0.2.10:8384:8384/tcp"
+      - "22000:22000/tcp"
+      - "22000:22000/udp"
+      - "21027:21027/udp"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8384/rest/noauth/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.00"
+          memory: 2048M
+        reservations:
+          memory: 512M
