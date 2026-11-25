@@ -18,6 +18,9 @@ ARG DEBIAN_BASE=debian:trixie-slim@sha256:8aa5a7bf5a1955bddbe7d74fcdd0b91ab30e74
 ARG GO_VERSION=1.27.4
 
 ARG SYNCTHING_VERSION=v2.1.7
+ARG GO_X_NET_VERSION=v0.63.0
+ARG GO_X_CRYPTO_VERSION=v0.59.0
+ARG GO_X_SYS_VERSION=v0.50.0
 ARG SYNCTHING_UID=1000
 ARG SYNCTHING_GID=1000
 
@@ -29,6 +32,9 @@ ARG IMAGE_SOURCE="https://github.com/dgcosenza/syncthing-docker"
 FROM ${GO_BASE} AS builder
 
 ARG SYNCTHING_VERSION
+ARG GO_X_NET_VERSION
+ARG GO_X_CRYPTO_VERSION
+ARG GO_X_SYS_VERSION
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -36,12 +42,13 @@ ENV GOTOOLCHAIN=local
 
 WORKDIR /src
 
-# Daily security builds intentionally refresh golang.org/x/* security modules
-# hadolint ignore=DL3062
 RUN set -eux; \
     git clone --depth 1 --branch "${SYNCTHING_VERSION}" \
         https://github.com/syncthing/syncthing.git .; \
-    go get golang.org/x/net@latest golang.org/x/crypto@latest golang.org/x/sys@latest; \
+    go mod edit \
+        -require="golang.org/x/net@${GO_X_NET_VERSION}" \
+        -require="golang.org/x/crypto@${GO_X_CRYPTO_VERSION}" \
+        -require="golang.org/x/sys@${GO_X_SYS_VERSION}"; \
     go mod tidy; \
     CGO_ENABLED=0 GOOS="${TARGETOS:-linux}" GOARCH="${TARGETARCH:-amd64}" \
         go run build.go -no-upgrade -version "${SYNCTHING_VERSION}" build syncthing; \
