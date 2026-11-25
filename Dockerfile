@@ -29,8 +29,8 @@ ARG IMAGE_SOURCE="https://github.com/dgcosenza/syncthing-docker"
 FROM ${GO_BASE} AS builder
 
 ARG SYNCTHING_VERSION
-ARG TARGETOS=linux
-ARG TARGETARCH=amd64
+ARG TARGETOS
+ARG TARGETARCH
 
 ENV GOTOOLCHAIN=local
 
@@ -43,7 +43,7 @@ RUN set -eux; \
         https://github.com/syncthing/syncthing.git .; \
     go get golang.org/x/net@latest golang.org/x/crypto@latest golang.org/x/sys@latest; \
     go mod tidy; \
-    CGO_ENABLED=0 GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" \
+    CGO_ENABLED=0 GOOS="${TARGETOS:-linux}" GOARCH="${TARGETARCH:-amd64}" \
         go run build.go -no-upgrade -version "${SYNCTHING_VERSION}" build syncthing; \
     ./syncthing --version
 
