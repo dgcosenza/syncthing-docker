@@ -36,6 +36,8 @@ ENV GOTOOLCHAIN=local
 
 WORKDIR /src
 
+# Daily security builds intentionally refresh golang.org/x/* security modules
+# hadolint ignore=DL3062
 RUN set -eux; \
     git clone --depth 1 --branch "${SYNCTHING_VERSION}" \
         https://github.com/syncthing/syncthing.git .; \
@@ -76,6 +78,7 @@ ARG IMAGE_CREATED
 ARG IMAGE_REVISION
 ARG IMAGE_SOURCE
 
+# hadolint ignore=DL3067
 COPY --from=os-base / /
 COPY --from=builder /src/syncthing /usr/local/bin/syncthing
 COPY --from=builder /src/LICENSE /usr/share/doc/syncthing-notices/LICENSE
