@@ -12,7 +12,7 @@ the upstream `syncthing/syncthing` release version.
 
 - Rebuilt on Debian `13.8` (`debian:trixie-slim`) with syncthing `v2.1.7`, go `1.27.4`.
 - Verified `0` fixable CRITICAL/HIGH vulnerabilities in Trivy and Grype.
-
+- Published digest: `dgcosenza/syncthing@sha256:6e6f2c06a30eb05d78de7e03e7059b837070c7d4c6f5ffdc939de44969dfe12c`.
 ## [2.1.7] - 2026-11-24
 
 ### Added

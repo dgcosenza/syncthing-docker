@@ -7,7 +7,7 @@
     "go": "1.27.4"
   },
   "last_build_date": "2026-11-25",
-  "last_digest": "",
+  "last_digest": "dgcosenza/syncthing@sha256:6e6f2c06a30eb05d78de7e03e7059b837070c7d4c6f5ffdc939de44969dfe12c",
   "unfixed_high_critical": [
     "CVE-2025-69720",
     "CVE-2026-107494",
