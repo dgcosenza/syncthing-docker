@@ -8,6 +8,15 @@ the upstream `syncthing/syncthing` release version.
 
 ## [2.1.7] - 2026-11-25
 
+### Automated Daily Build
+- Verified components: Syncthing `v2.1.7`, Go toolchain `1.27.4`, Base OS `Debian 13.8 (trixie-slim)`.
+- Architectures verified: `linux/amd64, linux/arm64` (native smoke tests + Dive efficiency gate).
+- Upstream status: refreshed base OS, dependencies, and supply-chain attestations.
+- Vulnerability gate: **0 fixable Critical/High** in Trivy and Grype (SBOM scan) (15 upstream-unfixed).
+- Published multi-arch digest (Docker Hub + GHCR): `dgcosenza/syncthing@sha256:f06382002fae2e088d8dc5c4b204b3b250dc6e9728f1e63c74bc167888d5ac6d` (Cosign OIDC signed + SPDX/CycloneDX SBOM + SLSA L3 provenance).
+
+## [2.1.7] - 2026-11-25
+
 ### Changed
 
 - Rebuilt on Debian `13.8` (`debian:trixie-slim`) with syncthing `v2.1.7`, go `1.27.4`.

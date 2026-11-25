@@ -39,9 +39,14 @@ A source-built, multi-arch, continuously rebuilt **Debian 13 (`trixie-slim`)** c
 | Go toolchain | `1.27.4` |
 | Base OS | `Debian 13.8 (trixie-slim)` |
 | Architectures | `linux/amd64, linux/arm64` |
+| Uncompressed size (per arch) | `amd64: 52.8 MB, arm64: 154.7 MB` |
 | Last verified build (UTC) | `2026-11-25` |
+| Published multi-arch digest | `dgcosenza/syncthing@sha256:f06382002fae2e088d8dc5c4b204b3b250dc6e9728f1e63c74bc167888d5ac6d` |
+| GHCR mirror | `ghcr.io/dgcosenza/syncthing@sha256:f06382002fae2e088d8dc5c4b204b3b250dc6e9728f1e63c74bc167888d5ac6d` |
 | Supply chain | Cosign OIDC signed + SPDX & CycloneDX SBOM attestations + SLSA Build L3 provenance |
-| Security gate (Trivy + Grype on SBOM) | **0 fixable Critical/High** |
+| Security gate (Trivy + Grype on SBOM) | **0 fixable Critical/High** (15 upstream-unfixed) |
+
+Currently tracked upstream-unfixed findings (no fix released): `CVE-2025-69720`, `CVE-2026-107494`, `CVE-2026-119373`, `CVE-2026-119374`, `CVE-2026-119379`, `CVE-2026-12064`, `CVE-2026-124709`, `CVE-2026-16742`, `CVE-2026-54369`, `CVE-2026-76642` (+5 more in CI artifacts).
 <!-- versions:end -->
 
 ---
