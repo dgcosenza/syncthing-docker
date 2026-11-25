@@ -23,11 +23,13 @@ overhead, using `tini` and `setpriv --no-new-privs`.
 
 | Component | Resolved version |
 |---|---|
-| Base OS | Debian `13` (`debian:trixie-slim`) |
+| Base OS | Debian `13.8` (`debian:trixie-slim`) |
 | `syncthing` | `v2.1.7` |
 | `go` | `1.27.4` |
-| Last verified build | `2026-11-24` |
+| Last verified build | `2026-11-25` |
 | Fixable CRITICAL / HIGH CVEs | `0` (Trivy + Grype gate) |
+
+Currently tracked unfixed upstream findings (no fix released): `CVE-2025-69720`, `CVE-2026-107494`, `CVE-2026-119373`, `CVE-2026-119374`, `CVE-2026-119379`, `CVE-2026-12064`, `CVE-2026-124709`, `CVE-2026-16742`, `CVE-2026-54369`, `CVE-2026-76642`.
 
 <!-- versions:end -->
 
