@@ -42,6 +42,8 @@ ENV GOTOOLCHAIN=local
 
 WORKDIR /src
 
+# go run build.go executes Syncthing's local build script; Go security modules are pinned via build-args
+# hadolint ignore=DL3062
 RUN set -eux; \
     git clone --depth 1 --branch "${SYNCTHING_VERSION}" \
         https://github.com/syncthing/syncthing.git .; \
