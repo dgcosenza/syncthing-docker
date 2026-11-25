@@ -1,65 +1,94 @@
-# Syncthing for Debian 13 (trixie)
+# Syncthing for Debian 13 (trixie-slim)
 
-[![Daily build, scan and publish](https://github.com/dgcosenza/syncthing-docker/actions/workflows/daily.yml/badge.svg)](https://github.com/dgcosenza/syncthing-docker/actions/workflows/daily.yml)
-[![Docker Hub pulls](https://img.shields.io/docker/pulls/dgcosenza/syncthing.svg)](https://hub.docker.com/r/dgcosenza/syncthing)
-[![Image size](https://img.shields.io/docker/image-size/dgcosenza/syncthing/latest.svg)](https://hub.docker.com/r/dgcosenza/syncthing)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Daily Syncthing image](https://github.com/dgcosenza/syncthing-docker/actions/workflows/daily.yml/badge.svg)](https://github.com/dgcosenza/syncthing-docker/actions/workflows/daily.yml)
+[![Packaging License: MIT](https://img.shields.io/badge/packaging-MIT-blue.svg)](https://github.com/dgcosenza/syncthing-docker/blob/main/LICENSE)
+[![Upstream License: MPL-2.0](https://img.shields.io/badge/upstream-MPL--2.0-green.svg)](https://github.com/syncthing/syncthing/blob/main/LICENSE)
+[![Signed with Cosign](https://img.shields.io/badge/signed-cosign%20OIDC-blueviolet.svg)](#supply-chain-verification)
+[![SLSA Level 3](https://img.shields.io/badge/SLSA-Level%203-brightgreen.svg)](#supply-chain-verification)
+[![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-informational.svg)](#supported-architectures)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dgcosenza/syncthing-docker/badge)](https://scorecard.dev/viewer/?uri=github.com/dgcosenza/syncthing-docker)
+[![Docker Pulls](https://img.shields.io/docker/pulls/dgcosenza/syncthing)](https://hub.docker.com/r/dgcosenza/syncthing)
+[![Docker Image Size](https://img.shields.io/docker/image-size/dgcosenza/syncthing/latest)](https://hub.docker.com/r/dgcosenza/syncthing)
+[![Latest Release](https://img.shields.io/github/v/release/dgcosenza/syncthing-docker?label=version)](https://github.com/dgcosenza/syncthing-docker/releases)
 
-A hardened, continuously rebuilt **Debian 13 (trixie)** container image of
-[Syncthing](https://syncthing.net/), compiled directly from official Go source
-tags (`-no-upgrade`, `CGO_ENABLED=0`) with the latest Go toolchain and patched
-Go security dependencies (`golang.org/x/net`, `x/crypto`, `x/sys`).
+A source-built, multi-arch, continuously rebuilt **Debian 13 (`trixie-slim`)** container image of [Syncthing](https://syncthing.net/), compiled with `-no-upgrade`, `CGO_ENABLED=0`, the latest Go toolchain, and patched Go security dependencies, maintained by **Daniel G. Cosenza from FNX Labs**.
 
-It is a **drop-in replacement** for `linuxserver/syncthing`: same `/config`
-configuration and identity directory (`cert.pem`, `key.pem`, `config.xml`,
-`index-v2/`), same `PUID`/`PGID` and `UMASK`/`UMASK_SET` conventions, same
-`STGUIADDRESS=0.0.0.0:8384`, same sync and discovery ports, and the same
-`/rest/noauth/health` healthcheck — built on Debian 13 slim without s6-overlay
-overhead, using `tini` and `setpriv --no-new-privs`.
+- **Docker Hub:** [`dgcosenza/syncthing`](https://hub.docker.com/r/dgcosenza/syncthing)
+- **GitHub Container Registry (GHCR):** [`ghcr.io/dgcosenza/syncthing`](https://github.com/dgcosenza/syncthing-docker/pkgs/container/syncthing) (identical signed multi-arch digest)
+- **Source Repository:** [`dgcosenza/syncthing-docker`](https://github.com/dgcosenza/syncthing-docker)
+- **Upstream Application:** [`syncthing/syncthing`](https://github.com/syncthing/syncthing) (`MPL-2.0`)
 
-## Current versions
+---
+
+## Overview
+
+`dgcosenza/syncthing` compiles official Syncthing Go source tags with refreshed security-sensitive Go modules (`golang.org/x/{net,crypto,sys}`) on **Debian 13 (`trixie-slim`)** for both `linux/amd64` and `linux/arm64`:
+
+- **Drop-in replacement for `linuxserver/syncthing`:** Preserves `/config` (`cert.pem`, `key.pem`, `config.xml`, `index-v2/`), `PUID`/`PGID`, `UMASK`/`UMASK_SET`, `STGUIADDRESS=0.0.0.0:8384`, ports `8384`/`22000`/`21027`, and `/rest/noauth/health` — without s6-overlay overhead, using `tini` and `setpriv --no-new-privs`.
+- **Rootless & read-only rootfs ready:** Verified natively on both architectures in both drop-in `PUID`/`PGID` mode and strict rootless mode (`--user 1000:1000 --read-only --cap-drop ALL --security-opt no-new-privileges:true`).
+- **Hardened supply chain:** Hadolint + Gitleaks preflight, native multi-arch smoke tests, strict Dive efficiency gate (`>= 95%`, `<= 5%` wasted), Syft SPDX + CycloneDX SBOMs, Trivy + Grype (SBOM) zero-fixable High/Critical gates, Cosign keyless OIDC signatures & SBOM attestations, SLSA Build L3 provenance, dual-registry publishing, and signed GitHub Releases.
+
+---
+
+## Current Versions
 
 <!-- versions:start -->
-
-| Component | Resolved version |
-|---|---|
-| Base OS | Debian `13.8` (`debian:trixie-slim`) |
-| `syncthing` | `v2.1.7` |
-| `go` | `1.27.4` |
-| Last verified build | `2026-11-25` |
-| Fixable CRITICAL / HIGH CVEs | `0` (Trivy + Grype gate) |
-| Published digest | `dgcosenza/syncthing@sha256:6e6f2c06a30eb05d78de7e03e7059b837070c7d4c6f5ffdc939de44969dfe12c` |
-
-Currently tracked unfixed upstream findings (no fix released): `CVE-2025-69720`, `CVE-2026-107494`, `CVE-2026-119373`, `CVE-2026-119374`, `CVE-2026-119379`, `CVE-2026-12064`, `CVE-2026-124709`, `CVE-2026-16742`, `CVE-2026-54369`, `CVE-2026-76642`.
-
+| Component | Resolved Version |
+| --- | --- |
+| Syncthing | `v2.1.7` |
+| Go toolchain | `1.27.4` |
+| Base OS | `Debian 13.8 (trixie-slim)` |
+| Architectures | `linux/amd64, linux/arm64` |
+| Last verified build (UTC) | `2026-11-25` |
+| Supply chain | Cosign OIDC signed + SPDX & CycloneDX SBOM attestations + SLSA Build L3 provenance |
+| Security gate (Trivy + Grype on SBOM) | **0 fixable Critical/High** |
 <!-- versions:end -->
 
-## Supported tags
+---
 
-| Tag | Meaning |
-|---|---|
-| `latest` | Newest successfully built, tested, and scanned image |
-| `<version>` | Upstream Syncthing release, e.g. `2.1.7` (moves on daily rebuilds of that release) |
-| `<version>-<YYYYMMDD>` | Immutable date-stamped build of that release |
-| `sha-<short>` | Immutable build of a specific repository commit |
+## Supported Tags & Tag Policy
 
-Pin production deployments by digest:
+Identical multi-arch OCI digests are published to **Docker Hub** (`dgcosenza/syncthing`) and **GHCR** (`ghcr.io/dgcosenza/syncthing`), accompanied by an automated signed [GitHub Release](https://github.com/dgcosenza/syncthing-docker/releases):
 
-```bash
-docker pull dgcosenza/syncthing:latest
-docker inspect --format='{{index .RepoDigests 0}}' dgcosenza/syncthing:latest
-# image: dgcosenza/syncthing@sha256:...
+| Tag | Policy | Description |
+| --- | --- | --- |
+| `<version>-<YYYYMMDD>` (e.g. `2.1.7-20261125`) | **Immutable** | Date-stamped daily rebuild pinning the Syncthing release and UTC build date. |
+| `sha-<short>` | **Immutable** | Packaging repository Git commit tag. |
+| `<version>` (e.g. `2.1.7`) | Moving | Latest verified Debian 13 + patched Go rebuild of that Syncthing release. |
+| `latest` | Moving | Latest verified build tracking the newest official Syncthing release. |
+
+**Production pinning:** Pin by immutable digest:
+
+```yaml
+image: dgcosenza/syncthing:2.1.7@sha256:<digest>
+# or via GitHub Container Registry (identical digest):
+image: ghcr.io/dgcosenza/syncthing:2.1.7@sha256:<digest>
 ```
 
-## Quick start
+---
+
+## Supported Architectures
+
+| Architecture | Status | Verification |
+| --- | --- | --- |
+| `linux/amd64` | **Published & natively tested** | Compiled with latest Go `trixie` + patched `x/*` modules, smoke-tested (both drop-in and `--user 1000:1000 --read-only --cap-drop ALL`), Dive-gated, Syft/Trivy/Grype-scanned, and Cosign-signed on native x86_64 CI runners. |
+| `linux/arm64` | **Published & natively tested** | Compiled with latest Go `trixie` + patched `x/*` modules, smoke-tested (both drop-in and `--user 1000:1000 --read-only --cap-drop ALL`), Dive-gated, Syft/Trivy/Grype-scanned, and Cosign-signed on native ARM64 CI runners. |
+
+---
+
+## Quick Start
+
+### `docker run` (hardened, rootless, read-only)
 
 ```bash
 docker run -d --name syncthing \
   --restart unless-stopped \
+  --user 1000:1000 \
+  --read-only \
+  --cap-drop ALL \
   --security-opt no-new-privileges:true \
-  -e PUID=1000 \
-  -e PGID=1000 \
-  -e TZ=UTC \
+  --tmpfs /tmp:noexec,nosuid,size=32m \
+  -e TZ=Etc/UTC \
   -e UMASK_SET=022 \
   -p 127.0.0.1:8384:8384/tcp \
   -p 22000:22000/tcp \
@@ -75,170 +104,168 @@ Verify health:
 curl -fsS http://127.0.0.1:8384/rest/noauth/health
 ```
 
-## Compose example
+### Hardened Docker Compose
 
-See [docker-compose.example.yml](docker-compose.example.yml) for a
-production-style compose file with `PUID`/`PGID`, `UMASK_SET`,
-`no-new-privileges:true`, resource limits, and healthcheck.
+See [`docker-compose.example.yml`](https://github.com/dgcosenza/syncthing-docker/blob/main/docker-compose.example.yml) for a hardened compose example running rootless (`user: "1000:1000"`) with `read_only: true`, `cap_drop: [ALL]`, `no-new-privileges:true`, `/tmp` `tmpfs`, and resource limits. (When migrating a host directory with mixed ownership from `linuxserver/syncthing`, omit `user:` and `cap_drop: [ALL]` so the entrypoint repairs ownership and drops to `PUID:PGID` via `setpriv`.)
+
+---
 
 ## Configuration
 
-### Ports
+### Ports & Volumes
 
-| Port | Protocol | Purpose |
-|---|---|---|
-| `8384` | TCP | Web GUI and REST API (bind to loopback or a management IP where possible) |
-| `22000` | TCP / UDP | Syncthing file transfer protocol (TCP and QUIC) |
-| `21027` | UDP | Local LAN discovery broadcasts |
+| Resource | Details | Purpose |
+| --- | --- | --- |
+| `8384/tcp` | Web GUI / REST API | Bind to loopback or a management IP (`192.0.2.10`) where possible |
+| `22000/tcp` & `22000/udp` | Sync protocol | TCP and QUIC peer sync |
+| `21027/udp` | Discovery | Local LAN discovery broadcasts |
+| `/config` | Persistent volume | `config.xml`, device identity (`cert.pem`/`key.pem`), TLS keys, `index-v2/` |
+| `/data` *(optional)* | Persistent volume | Additional synced folders |
 
-### Volumes
-
-| Path | Purpose |
-|---|---|
-| `/config` | Syncthing configuration (`config.xml`), device identity keys (`cert.pem`, `key.pem`), GUI TLS material, and index database (`index-v2/`) |
-| `/data` *(or custom mounts)* | Any additional host directories mounted for synced folders |
-
-### Environment variables
+### Environment Variables
 
 | Variable | Default | Description |
-|---|---|---|
-| `PUID` | `1000` | Numeric user ID Syncthing drops privileges to |
-| `PGID` | `1000` | Numeric group ID Syncthing drops privileges to |
-| `UMASK` / `UMASK_SET` | `022` | File creation mask applied before starting Syncthing (`UMASK_SET` takes precedence when set for `linuxserver/syncthing` parity) |
+| --- | --- | --- |
+| `PUID` / `PGID` | `1000` / `1000` | Numeric user/group IDs Syncthing drops privileges to when started as root |
+| `UMASK` / `UMASK_SET` | `022` | File creation mask (`UMASK_SET` takes precedence for `linuxserver/syncthing` parity) |
 | `TZ` | `UTC` | Container timezone |
-| `HOME` / `STHOMEDIR` | `/config` | Syncthing configuration and state directory |
+| `HOME` / `STHOMEDIR` | `/config` | Syncthing state/config directory |
 | `STGUIADDRESS` | `0.0.0.0:8384` | Web GUI bind address inside the container |
-| `SKIP_CHOWN` | *(unset)* | Set to `1` to skip automatic ownership repair on `/config` at startup |
+| `SKIP_CHOWN` | *(unset)* | Set to `1` to skip startup ownership repair on `/config` |
 
-### UID / GID
-
-At startup the entrypoint ensures files under `/config` whose ownership differs
-from `PUID:PGID` are chowned to `PUID:PGID` (skipping files that already match),
-then execs Syncthing via `setpriv --reuid=$PUID --regid=$PGID --clear-groups --no-new-privs`.
-Syncthing itself never runs as root. You can also launch the container directly
-with `--user <uid>:<gid>` if `/config` is already owned by that user.
+---
 
 ## Healthcheck
 
-```text
-sh -c "curl -fsS http://127.0.0.1:8384/rest/noauth/health >/dev/null || exit 1"
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD ["sh", "-c", "curl -fsS http://127.0.0.1:8384/rest/noauth/health >/dev/null || exit 1"]
 ```
 
-Matches the standard `/rest/noauth/health` probe (30 s interval, 10 s timeout,
-60 s start period, 3 retries) and fails closed if Syncthing stops.
+Probes `/rest/noauth/health` directly and fails closed when Syncthing stops.
 
-## Upgrading and migrating from `linuxserver/syncthing`
+---
 
-1. **Back up `/config`** (`config.xml`, `cert.pem`, `key.pem`, `https-*.pem`,
-   and `index-v2/`) before making changes. Never share or expose `key.pem` or
-   `config.xml`.
-2. Replace `linuxserver/syncthing:latest` in your compose file with
-   `dgcosenza/syncthing:<version>@sha256:<digest>`.
-3. Keep the exact same `PUID`, `PGID`, `TZ`, `UMASK_SET`, `/config` mount,
-   data folder mounts, and port bindings.
-4. Recreate the container (`docker compose up -d syncthing`), confirm `healthy`
-   status, and verify your existing Device ID and synced folders appear
-   unchanged in the GUI.
+## Upgrading and Migrating from `linuxserver/syncthing`
 
-Rollback is immediate: restore the previous `linuxserver/syncthing` digest in
-your compose file and run `docker compose up -d syncthing`.
+1. **Back up `/config`** (`config.xml`, `cert.pem`, `key.pem`, `https-*.pem`, `index-v2/`) before making changes. Never share or expose `key.pem` or `config.xml`.
+2. Replace `linuxserver/syncthing:latest` with `dgcosenza/syncthing:<version>@sha256:<digest>` (or `ghcr.io/dgcosenza/syncthing:<version>@sha256:<digest>`).
+3. Keep your existing `PUID`, `PGID`, `TZ`, `UMASK_SET`, `/config`, data mounts, and port mappings.
+4. Recreate the container (`docker compose up -d syncthing`), confirm `healthy` status, and verify your Device ID and folders remain unchanged.
+
+---
+
+## Supply-Chain Verification
+
+Every published digest (multi-arch index and per-architecture manifests) on both Docker Hub and GHCR is keyless-signed with **Sigstore Cosign** (GitHub OIDC), attested with **SPDX** and **CycloneDX** SBOMs, and backed by **SLSA Build L3** provenance (`actions/attest-build-provenance`).
+
+### Verify image signature with Cosign
+
+```bash
+cosign verify \
+  --certificate-identity-regexp="^https://github\.com/dgcosenza/syncthing-docker/\.github/workflows/daily\.yml@refs/heads/main$" \
+  --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+  ghcr.io/dgcosenza/syncthing:latest
+
+# Or against Docker Hub (identical digest):
+cosign verify \
+  --certificate-identity-regexp="^https://github\.com/dgcosenza/syncthing-docker/\.github/workflows/daily\.yml@refs/heads/main$" \
+  --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+  dgcosenza/syncthing:latest
+```
+
+### Verify SPDX / CycloneDX SBOM attestations
+
+```bash
+cosign verify-attestation \
+  --type spdxjson \
+  --certificate-identity-regexp="^https://github\.com/dgcosenza/syncthing-docker/\.github/workflows/daily\.yml@refs/heads/main$" \
+  --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+  ghcr.io/dgcosenza/syncthing@sha256:<arch-digest>
+```
+
+### Verify SLSA Build Provenance
+
+```bash
+gh attestation verify oci://ghcr.io/dgcosenza/syncthing:latest --owner dgcosenza
+```
+
+---
 
 ## Security
 
-* **Base OS:** `debian:trixie-slim`, fully upgraded (`apt-get upgrade`) on
-  every build with `--no-install-recommends` and cleaned APT lists.
-* **Patched Go binary:** Built daily from the official upstream Syncthing tag
-  with `CGO_ENABLED=0`, `-no-upgrade`, the latest Go toolchain on Debian 13,
-  and updated `golang.org/x/{net,crypto,sys}` modules (fixing upstream binary
-  CVEs such as `CVE-2026-78661`).
-* **Privilege drop & PID 1:** `tini` handles signal forwarding and zombie
-  reaping; `setpriv --no-new-privs` drops to `PUID:PGID` before launching
-  Syncthing.
-* **Scan policy:** Every build must pass **Trivy** (`--ignore-unfixed`,
-  `CRITICAL,HIGH`, scanning both OS packages and the Go binary) and **Grype**
-  (`--only-fixed`, severity `high`) with **0 fixable CRITICAL or HIGH**
-  vulnerabilities. Reports and a Syft SPDX SBOM are retained for 90 days; Trivy
-  SARIF is uploaded to GitHub code scanning.
-* **Current status:** see the CI badge above and "Current versions".
+- **Preflight gates:** Every push and PR runs **Hadolint** (blocking on warning+), **Gitleaks** secret scanning across git history, and **public-content/attribution/license** checks.
+- **Patched Go binary:** Compiled daily from official upstream tags with `CGO_ENABLED=0`, `-no-upgrade`, the latest Go `trixie` toolchain (`GOTOOLCHAIN=local`), and updated `golang.org/x/{net,crypto,sys}` modules (eliminating binary CVEs such as `CVE-2026-78661`).
+- **Rootless & read-only ready:** Supports both `setpriv --no-new-privs` privilege drop and direct `--user 1000:1000 --read-only --cap-drop ALL` execution.
+- **Vulnerability & efficiency gates:** Each architecture generates **Syft** SPDX + CycloneDX SBOMs, passes a strict **Dive** efficiency gate (`>= 95%`, `<= 5%` wasted), and must pass **Trivy** (table, JSON, SARIF to Code Scanning, blocking `--ignore-unfixed`) and **Grype** scanning the SPDX SBOM (`--only-fixed --fail-on high`) with **0 fixable Critical/High** vulnerabilities.
+- **Dependency automation:** Renovate (`renovate.json`) pins base image digests and GitHub Action commit SHAs; Dependabot security alerts and OpenSSF Scorecard monitoring are enabled.
+- See [`SECURITY.md`](https://github.com/dgcosenza/syncthing-docker/blob/main/SECURITY.md) for vulnerability reporting.
 
-## Building locally
+---
+
+## Build Locally
 
 ```bash
 git clone https://github.com/dgcosenza/syncthing-docker.git
 cd syncthing-docker
-docker build -t dgcosenza/syncthing:dev .
-./tests/smoke.sh dgcosenza/syncthing:dev
+
+docker buildx build \
+  --platform linux/amd64 \
+  --load \
+  --build-arg IMAGE_CREATED="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --build-arg IMAGE_REVISION="$(git rev-parse HEAD)" \
+  -t dgcosenza/syncthing:local \
+  .
+
+./tests/smoke.sh dgcosenza/syncthing:local
 ```
 
-Build arguments:
-
-| Argument | Default | Purpose |
-|---|---|---|
-| `DEBIAN_VERSION` | `trixie-slim` | Debian 13 base tag |
-| `GO_VERSION` | tracked release | Official `golang:<ver>-trixie` builder toolchain |
-| `SYNCTHING_VERSION` | tracked release | `syncthing/syncthing` Git tag |
+| Build Arg | Default | Purpose |
+| --- | --- | --- |
+| `GO_BASE` | `golang:1.27.4-trixie@sha256:...` | Digest-pinned official Go builder image (refreshed daily by CI) |
+| `DEBIAN_BASE` | `debian:trixie-slim@sha256:...` | Digest-pinned Debian 13 runtime base image (refreshed daily by CI) |
+| `GO_VERSION` | `1.27.4` | Go toolchain version metadata |
+| `SYNCTHING_VERSION` | `v2.1.7` | `syncthing/syncthing` Git tag |
 | `SYNCTHING_UID` / `SYNCTHING_GID` | `1000` / `1000` | Default `syncthing` account IDs |
-| `IMAGE_CREATED`, `IMAGE_REVISION`, `IMAGE_SOURCE` | empty / repo | OCI image metadata |
 
-## Update policy
+---
 
-A GitHub Actions workflow (`.github/workflows/daily.yml`) runs **daily** (and on
-every push to `main`, on pull requests, and on demand via `workflow_dispatch`),
-gated first by `.github/workflows/public-check.yml`:
+## Update Policy
 
-1. **Upstream check:** resolves the latest `syncthing/syncthing` release via
-   the authenticated GitHub API (`GH_TOKEN`) and the newest Go `trixie` release
-   from Docker Hub, diffs against `versions.json`, and fetches upstream release
-   notes for new releases.
-2. **Clean rebuild:** updates `golang.org/x/{net,crypto,sys}`, compiles
-   Syncthing (`-no-upgrade`, `CGO_ENABLED=0`), and builds the Debian 13 slim
-   runtime with `apt-get upgrade` and `--no-cache` on scheduled runs.
-3. **Vulnerability fix and gate:** scans OS packages and the compiled Go binary
-   with **Trivy** (table, JSON, SARIF to GitHub code scanning) and **Grype**;
-   fails on any fixable **CRITICAL** or **HIGH** vulnerability, retains reports
-   and an SPDX SBOM (Syft) for 90 days, and diffs findings against the prior
-   build.
-4. **Smoke test:** starts the container with `PUID=1000`/`PGID=1000`/`UMASK_SET=022`,
-   waits for `healthy`, confirms Syncthing runs as uid `1000`, verifies
-   `/rest/noauth/health` and `/config` identity file creation/ownership, and
-   asserts healthcheck failure once stopped.
-5. **Publish:** on non-PR runs with Docker Hub credentials configured, pushes
-   `latest`, `<version>`, `<version>-<YYYYMMDD>` (immutable), and `sha-<short>`,
-   recording the published digest.
-6. **Automated documentation sync:** when versions, base OS, digest, or CVE
-   status change, commits updated `versions.json`, the README "Current
-   versions" block, and a dated `CHANGELOG.md` entry (`[skip ci]`), then syncs
-   the README and short description to Docker Hub.
-7. **Alerting:** on failure of any job on a scheduled or `main` run, opens or
-   updates a single GitHub issue labeled `ci-failure` with the failing job and
-   run link, and closes it automatically on the next green run.
+[`.github/workflows/daily.yml`](https://github.com/dgcosenza/syncthing-docker/blob/main/.github/workflows/daily.yml) runs automatically every day at **05:50 UTC**, on pushes to `main`, on pull requests (verification only), and via `workflow_dispatch`:
 
-## Design decisions
+1. **Preflight & upstream check:** Runs public-content checks, **Hadolint**, and **Gitleaks**; resolves the latest `syncthing/syncthing` release via authenticated GitHub API plus latest Go `trixie` and `debian:trixie-slim` digests; diffs against `versions.json` and emits `upstream-changes.md`.
+2. **Multi-arch no-cache rebuild:** Refreshes `golang.org/x/{net,crypto,sys}`, compiles Syncthing (`-no-upgrade`, `CGO_ENABLED=0`) natively on `linux/amd64` and `linux/arm64` runners with `--no-cache` on schedule and full Debian 13 `apt-get upgrade`.
+3. **Smoke, Dive & vulnerability gates:** Runs [`tests/smoke.sh`](https://github.com/dgcosenza/syncthing-docker/blob/main/tests/smoke.sh) natively on both architectures (drop-in `PUID`/`PGID` + strict `--user 1000:1000 --read-only --cap-drop ALL`), enforces the strict **Dive** efficiency gate (`>= 95%`, `<= 5%` wasted), generates **Syft** SPDX + CycloneDX SBOMs, and gates publication on **0 fixable Critical/High** in both **Trivy** and **Grype** (SBOM scan).
+4. **Dual-registry publish & signing:** Assembles the multi-arch OCI index on **GHCR** (`ghcr.io/dgcosenza/syncthing`) and mirrors the identical digest to **Docker Hub** (`dgcosenza/syncthing`) with tags `latest`, `<version>`, `<version>-<YYYYMMDD>`, and `sha-<short>`; keyless-signs digests and attaches SPDX/CycloneDX SBOM attestations via **Cosign** OIDC; emits **SLSA Build L3** provenance; and publishes a signed **GitHub Release**.
+5. **Automated documentation sync:** Commits updated `versions.json`, the README `Current Versions` block, and a dated `CHANGELOG.md` entry via `github-actions[bot]` (`[skip ci]`), then syncs the Docker Hub overview and short description.
+6. **Failure alerting:** Opens or updates a single GitHub issue labeled `ci-failure` on any `main` or scheduled failure, and closes it automatically on the next green run.
 
-* **Built from source with patched Go modules instead of shipping the prebuilt
-  tarball.** Upstream releases can lag behind `golang.org/x/*` security fixes
-  (for example `CVE-2026-78661` in `golang.org/x/net`). Compiling from official
-  source with refreshed security dependencies achieves 0 fixable CRITICAL/HIGH
-  findings immediately.
-* **Debian 13 slim + `tini` + `setpriv` instead of Alpine + s6-overlay.**
-  Preserves full `linuxserver/syncthing` directory and environment-variable
-  compatibility while keeping a minimal, auditable POSIX entrypoint on Debian 13.
-* **Built with `-no-upgrade`.** In-container self-upgrades are disabled so all
-  updates happen immutably through daily rebuilt and scanned container images.
+---
+
+## Design Decisions
+
+- **Source build with refreshed Go security dependencies:** Upstream prebuilt tarballs can ship lagged `golang.org/x/*` dependencies; rebuilding from official release tags clears binary CVEs immediately.
+- **Debian 13 (`trixie-slim`) + `tini` + `setpriv` instead of Alpine + s6-overlay:** Preserves full `linuxserver/syncthing` parity with a concise, auditable POSIX entrypoint while supporting strict rootless read-only operation.
+- **Two-layer zero-waste runtime layout:** Upgrading Debian 13 inside an `os-base` stage and assembling the final image with cleanly separated OS and compiled-binary layers eliminates overwritten base-layer files so Dive remains at ~100% efficiency and ~0% wasted space across daily security rebuilds.
+- **Built with `-no-upgrade`:** Disables in-container self-upgrades so all updates flow through immutable signed images.
+- **Hadolint `DL3008` ignore:** Daily `--no-cache` security rebuilds intentionally pull the newest Debian 13 security updates via `apt-get` rather than pinning stale package versions.
+
+---
 
 ## License
 
-The packaging, entrypoint, workflow, and documentation in this repository are
-licensed under the **MIT License** (see [LICENSE](LICENSE)).
+This repository follows a clear packaging-vs-upstream license split:
 
-Syncthing is licensed under the **Mozilla Public License 2.0 (`MPL-2.0`)**; the
-upstream license file is preserved at `/usr/share/doc/syncthing-notices/LICENSE`
-and summarized in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+- **Container packaging, entrypoint, CI workflows, scripts, and documentation (`packaging: MIT`):** Licensed under the [MIT License](https://github.com/dgcosenza/syncthing-docker/blob/main/LICENSE) — copyright **Daniel G. Cosenza from FNX Labs**.
+- **Bundled upstream software — Syncthing (`upstream: MPL-2.0`):** Copyright The Syncthing Authors — licensed under the [Mozilla Public License 2.0 (`MPL-2.0`)](https://github.com/syncthing/syncthing/blob/main/LICENSE).
+
+Full notices are preserved inside the image (`/usr/share/doc/syncthing-notices/LICENSE`) and in [`THIRD-PARTY-NOTICES.md`](https://github.com/dgcosenza/syncthing-docker/blob/main/THIRD-PARTY-NOTICES.md).
+
+---
 
 ## Credits
 
-* [The Syncthing Project](https://github.com/syncthing/syncthing) — open-source
-  continuous file synchronization
-* [LinuxServer.io](https://github.com/linuxserver/docker-syncthing) — `/config`
-  and `PUID`/`PGID` conventions preserved for drop-in migration
-* Container packaging, CI, and documentation: maintained by Daniel G. Cosenza from FNX Labs ([dgcosenza](https://github.com/dgcosenza))
+- [The Syncthing Project](https://github.com/syncthing/syncthing)
+- [LinuxServer.io](https://github.com/linuxserver/docker-syncthing) — `/config` and `PUID`/`PGID` conventions preserved for drop-in migration
+- Container packaging, CI, and documentation: maintained by **Daniel G. Cosenza from FNX Labs** ([dgcosenza](https://github.com/dgcosenza))

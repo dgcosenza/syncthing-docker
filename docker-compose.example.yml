@@ -1,20 +1,30 @@
-# Production-style compose example for dgcosenza/syncthing
+# Hardened rootless + read-only compose example for dgcosenza/syncthing
 #
 # Pin production deployments by @sha256 digest and back up ./config (contains
 # device identity keys cert.pem/key.pem and config.xml) before upgrades.
 # Bind port 8384 to your management interface (e.g. 192.0.2.10) or loopback.
+#
+# When ./config is already owned by 1000:1000, this hardened example runs
+# completely rootless (`user: "1000:1000"`), with `read_only: true` and
+# `cap_drop: [ALL]`. For drop-in migration from linuxserver/syncthing where
+# PUID/PGID ownership repair at startup is needed, omit `user:` and
+# `cap_drop: [ALL]` (the entrypoint still drops to PUID:PGID via `setpriv`).
 
 services:
   syncthing:
     image: dgcosenza/syncthing:latest
     container_name: syncthing
     restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    cap_drop:
+      - ALL
     security_opt:
       - no-new-privileges:true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=32m
     environment:
-      PUID: "1000"
-      PGID: "1000"
-      TZ: "UTC"
+      TZ: "Etc/UTC"
       UMASK_SET: "022"
     volumes:
       - ./config:/config

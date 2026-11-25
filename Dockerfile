@@ -1,19 +1,21 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.7
 
 # ---------------------------------------------------------------------------
-# Syncthing compiled from official Go source on Debian 13 (trixie) slim.
+# Syncthing compiled from official Go source on Debian 13 (trixie-slim).
 #
 # Drop-in compatible with linuxserver/syncthing: same /config home and config
 # directory, PUID/PGID (default 1000:1000), UMASK/UMASK_SET, TZ,
 # STGUIADDRESS=0.0.0.0:8384, ports 8384/22000/21027, and /rest/noauth/health
-# healthcheck.
+# healthcheck. Also supports rootless + read-only rootfs execution when run
+# with --user 1000:1000 --read-only --cap-drop ALL.
 #
-# Every version below is a documented default; CI overrides them with the
-# latest upstream Syncthing release and Go toolchain (.github/workflows/daily.yml).
+# Every version and base digest below is a documented default; CI overrides
+# them on each run (see .github/workflows/daily.yml).
 # ---------------------------------------------------------------------------
 
+ARG GO_BASE=golang:1.27.4-trixie@sha256:430985542100b871e108ccc00e8dcc5eef08ca14ee5825e98ebf563d8ffec4ee
+ARG DEBIAN_BASE=debian:trixie-slim@sha256:8aa5a7bf5a1955bddbe7d74fcdd0b91ab30e74362a8b73af672b0481b35b44a0
 ARG GO_VERSION=1.27.4
-ARG DEBIAN_VERSION=trixie-slim
 
 ARG SYNCTHING_VERSION=v2.1.7
 ARG SYNCTHING_UID=1000
@@ -24,60 +26,32 @@ ARG IMAGE_REVISION=""
 ARG IMAGE_SOURCE="https://github.com/dgcosenza/syncthing-docker"
 
 # ---- Stage 1: compile Syncthing from official source with patched Go deps --
-FROM golang:${GO_VERSION}-trixie AS builder
+FROM ${GO_BASE} AS builder
 
 ARG SYNCTHING_VERSION
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
 
+ENV GOTOOLCHAIN=local
+
 WORKDIR /src
 
-RUN git clone --depth 1 --branch "${SYNCTHING_VERSION}" \
-    https://github.com/syncthing/syncthing.git .
-
-# Refresh Go security-sensitive x/* modules (resolving CVEs such as
-# CVE-2026-78661 in golang.org/x/net) before building the static binary.
 RUN set -eux; \
+    git clone --depth 1 --branch "${SYNCTHING_VERSION}" \
+        https://github.com/syncthing/syncthing.git .; \
     go get golang.org/x/net@latest golang.org/x/crypto@latest golang.org/x/sys@latest; \
     go mod tidy; \
     CGO_ENABLED=0 GOOS="${TARGETOS}" GOARCH="${TARGETARCH}" \
         go run build.go -no-upgrade -version "${SYNCTHING_VERSION}" build syncthing; \
     ./syncthing --version
 
-# ---- Stage 2: hardened Debian 13 runtime -----------------------------------
-FROM debian:${DEBIAN_VERSION}
+# ---- Stage 2: fully upgraded Debian 13 runtime OS layer --------------------
+FROM ${DEBIAN_BASE} AS os-base
 
-ARG DEBIAN_VERSION
-ARG GO_VERSION
-ARG SYNCTHING_VERSION
 ARG SYNCTHING_UID
 ARG SYNCTHING_GID
-ARG IMAGE_CREATED
-ARG IMAGE_REVISION
-ARG IMAGE_SOURCE
 
-LABEL org.opencontainers.image.title="Syncthing (Debian 13)" \
-      org.opencontainers.image.description="Hardened, up-to-date Debian 13 (trixie) build of Syncthing compiled from official Go source with patched dependencies, drop-in compatible with linuxserver/syncthing." \
-      org.opencontainers.image.url="https://hub.docker.com/r/dgcosenza/syncthing" \
-      org.opencontainers.image.source="${IMAGE_SOURCE}" \
-      org.opencontainers.image.documentation="${IMAGE_SOURCE}#readme" \
-      org.opencontainers.image.version="${SYNCTHING_VERSION}" \
-      org.opencontainers.image.revision="${IMAGE_REVISION}" \
-      org.opencontainers.image.created="${IMAGE_CREATED}" \
-      org.opencontainers.image.licenses="MPL-2.0" \
-      org.opencontainers.image.vendor="Daniel G. Cosenza from FNX Labs" \
-      org.opencontainers.image.authors="Daniel G. Cosenza from FNX Labs" \
-      io.github.dgcosenza.syncthing.upstream_version="${SYNCTHING_VERSION}" \
-      io.github.dgcosenza.syncthing.go_version="${GO_VERSION}" \
-      io.github.dgcosenza.syncthing.base="debian:${DEBIAN_VERSION}"
-
-ENV DEBIAN_FRONTEND=noninteractive \
-    PUID=1000 \
-    PGID=1000 \
-    UMASK=022 \
-    HOME=/config \
-    STHOMEDIR=/config \
-    STGUIADDRESS=0.0.0.0:8384
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get -y --no-install-recommends upgrade \
@@ -87,19 +61,51 @@ RUN apt-get update \
         tini \
         tzdata \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Default service account (1000:1000, overridden at runtime via PUID/PGID).
-RUN groupadd --gid "${SYNCTHING_GID}" syncthing \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && groupadd --gid "${SYNCTHING_GID}" syncthing \
     && useradd --uid "${SYNCTHING_UID}" --gid syncthing \
         --home-dir /config --no-create-home --shell /usr/sbin/nologin syncthing \
     && install -d -o syncthing -g syncthing -m 0750 /config
 
+# ---- Stage 3: clean multi-arch runtime image (zero base-upgrade waste) -----
+FROM scratch
+
+ARG GO_VERSION
+ARG SYNCTHING_VERSION
+ARG IMAGE_CREATED
+ARG IMAGE_REVISION
+ARG IMAGE_SOURCE
+
+COPY --from=os-base / /
 COPY --from=builder /src/syncthing /usr/local/bin/syncthing
 COPY --from=builder /src/LICENSE /usr/share/doc/syncthing-notices/LICENSE
 COPY --chmod=0755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    DEBIAN_FRONTEND=noninteractive \
+    PUID=1000 \
+    PGID=1000 \
+    UMASK=022 \
+    HOME=/config \
+    STHOMEDIR=/config \
+    STGUIADDRESS=0.0.0.0:8384
+
 RUN /usr/local/bin/syncthing --version
+
+LABEL org.opencontainers.image.title="Syncthing (Debian 13)" \
+      org.opencontainers.image.description="Hardened, multi-arch Debian 13 (trixie-slim) build of Syncthing compiled from official Go source with patched dependencies, drop-in compatible with linuxserver/syncthing." \
+      org.opencontainers.image.url="https://hub.docker.com/r/dgcosenza/syncthing" \
+      org.opencontainers.image.source="${IMAGE_SOURCE}" \
+      org.opencontainers.image.documentation="${IMAGE_SOURCE}#readme" \
+      org.opencontainers.image.version="${SYNCTHING_VERSION}" \
+      org.opencontainers.image.revision="${IMAGE_REVISION}" \
+      org.opencontainers.image.created="${IMAGE_CREATED}" \
+      org.opencontainers.image.licenses="MPL-2.0 AND MIT" \
+      org.opencontainers.image.vendor="Daniel G. Cosenza from FNX Labs" \
+      org.opencontainers.image.authors="Daniel G. Cosenza from FNX Labs" \
+      org.opencontainers.image.base.name="debian:trixie-slim" \
+      io.github.dgcosenza.syncthing.upstream_version="${SYNCTHING_VERSION}" \
+      io.github.dgcosenza.syncthing.go_version="${GO_VERSION}"
 
 VOLUME ["/config"]
 EXPOSE 8384/tcp 22000/tcp 22000/udp 21027/udp
