@@ -24,9 +24,9 @@
   "base_digest": "sha256:8aa5a7bf5a1955bddbe7d74fcdd0b91ab30e74362a8b73af672b0481b35b44a0",
   "debian_version": "13.8",
   "build_date": "2026-11-26",
-  "built_at_utc": "2026-11-26T05:26:30Z",
-  "image_digest": "dgcosenza/syncthing@sha256:8d48bb5974eef4894d2a614bbb370859c2feb1b8afbcad2d0f500af89a502a92",
-  "ghcr_digest": "ghcr.io/dgcosenza/syncthing@sha256:8d48bb5974eef4894d2a614bbb370859c2feb1b8afbcad2d0f500af89a502a92",
+  "built_at_utc": "2026-11-26T15:49:14Z",
+  "image_digest": "dgcosenza/syncthing@sha256:6cf676329c1bc1d20d91a35e6c6750f7c71908b824ffbc568650a0a2d22c4b0d",
+  "ghcr_digest": "ghcr.io/dgcosenza/syncthing@sha256:6cf676329c1bc1d20d91a35e6c6750f7c71908b824ffbc568650a0a2d22c4b0d",
   "fixable_critical_high": 0,
   "unfixed_cves": [
     "CVE-2025-69720",
