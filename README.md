@@ -26,7 +26,7 @@ A source-built, multi-arch, continuously rebuilt **Debian 13 (`trixie-slim`)** c
 
 - **Drop-in replacement for `linuxserver/syncthing`:** Preserves `/config` (`cert.pem`, `key.pem`, `config.xml`, `index-v2/`), `PUID`/`PGID`, `UMASK`/`UMASK_SET`, `STGUIADDRESS=0.0.0.0:8384`, ports `8384`/`22000`/`21027`, and `/rest/noauth/health` — without s6-overlay overhead, using `tini` and `setpriv --no-new-privs`.
 - **Rootless & read-only rootfs ready:** Verified natively on both architectures in both drop-in `PUID`/`PGID` mode and strict rootless mode (`--user 1000:1000 --read-only --cap-drop ALL --security-opt no-new-privileges:true`).
-- **Hardened supply chain:** Hadolint + Gitleaks preflight, native multi-arch smoke tests, strict Dive efficiency gate (`>= 95%`, `<= 5%` wasted), Syft SPDX + CycloneDX SBOMs, Trivy + Grype (SBOM) zero-fixable High/Critical gates, Cosign keyless OIDC signatures & SBOM attestations, SLSA Build L3 provenance, dual-registry publishing, and signed GitHub Releases.
+- **Hardened supply chain:** Hadolint + Gitleaks preflight, native multi-arch smoke tests, strict Dive efficiency gate (`>= 95%`, `<= 5%` wasted), Syft SPDX + CycloneDX SBOMs, Trivy + Grype (SBOM) zero-fixable all-severity gates, Cosign keyless OIDC signatures & SBOM attestations, SLSA Build L3 provenance, dual-registry publishing, and signed GitHub Releases.
 
 ---
 
@@ -202,7 +202,7 @@ gh attestation verify oci://ghcr.io/dgcosenza/syncthing:latest --owner dgcosenza
 - **Preflight gates:** Every push and PR runs **Hadolint** (blocking on warning+), **Gitleaks** secret scanning across git history, and **public-content/attribution/license** checks.
 - **Patched Go binary:** Compiled daily from official upstream tags with `CGO_ENABLED=0`, `-no-upgrade`, the latest Go `trixie` toolchain (`GOTOOLCHAIN=local`), and updated `golang.org/x/{net,crypto,sys}` modules (eliminating binary CVEs such as `CVE-2026-78661`).
 - **Rootless & read-only ready:** Supports both `setpriv --no-new-privs` privilege drop and direct `--user 1000:1000 --read-only --cap-drop ALL` execution.
-- **Vulnerability & efficiency gates (all severities with a fix):** Each architecture generates **Syft** SPDX + CycloneDX SBOMs, passes a strict **Dive** efficiency gate (`>= 95%`, `<= 5%` wasted), and must pass **Trivy** (table, JSON, SARIF to Code Scanning, blocking `--ignore-unfixed`) and **Grype** scanning the SPDX SBOM (`--only-fixed --fail-on negligible`) with **0 fixable findings of any severity** vulnerabilities.
+- **Vulnerability & efficiency gates (all severities with a fix):** Each architecture generates **Syft** SPDX + CycloneDX SBOMs, passes a strict **Dive** efficiency gate (`>= 95%`, `<= 5%` wasted), and must pass **Trivy** (table, JSON, SARIF to Code Scanning, blocking `--ignore-unfixed`) and **Grype** scanning the SPDX SBOM (`--only-fixed --fail-on negligible`) with **0 fixable vulnerabilities of any severity**.
 - **Dependency automation:** Renovate (`renovate.json`) pins base image digests and GitHub Action commit SHAs; Dependabot security alerts and OpenSSF Scorecard monitoring are enabled.
 - See [`SECURITY.md`](https://github.com/dgcosenza/syncthing-docker/blob/main/SECURITY.md) for vulnerability reporting.
 
