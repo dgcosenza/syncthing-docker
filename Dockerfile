@@ -52,6 +52,9 @@ RUN set -eux; \
         -require="golang.org/x/crypto@${GO_X_CRYPTO_VERSION}" \
         -require="golang.org/x/sys@${GO_X_SYS_VERSION}"; \
     go mod tidy; \
+    git config user.email "build@syncthing-docker.invalid" && \
+    git config user.name "syncthing-docker build" && \
+    git add -A && git commit -q -m "patch Go module dependencies" || true; \
     CGO_ENABLED=0 GOOS="${TARGETOS:-linux}" GOARCH="${TARGETARCH:-amd64}" \
         go run build.go -no-upgrade -version "${SYNCTHING_VERSION}" build syncthing; \
     ./syncthing --version
