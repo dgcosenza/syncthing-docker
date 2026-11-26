@@ -323,7 +323,7 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:ci-candidate-${{ matrix.arch }}'
           format: 'table'
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
           exit-code: '0'
           output: 'trivy-report-${{ matrix.arch }}.txt'
 
@@ -333,7 +333,7 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:ci-candidate-${{ matrix.arch }}'
           format: 'json'
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
           exit-code: '0'
           output: 'trivy-report-${{ matrix.arch }}.json'
 
@@ -347,7 +347,7 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:ci-candidate-${{ matrix.arch }}'
           format: 'sarif'
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
           ignore-unfixed: true
           output: 'trivy-results-${{ matrix.arch }}.sarif'
           exit-code: '0'
@@ -365,7 +365,7 @@ jobs:
           image-ref: '${{ env.IMAGE_NAME }}:ci-candidate-${{ matrix.arch }}'
           format: 'table'
           vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
           ignore-unfixed: true
           exit-code: '1'
 
@@ -375,7 +375,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
-          grype "sbom:sbom-${ARCH}.spdx.json" --only-fixed --fail-on high -o table | tee "grype-report-${ARCH}.txt"
+          grype "sbom:sbom-${ARCH}.spdx.json" --only-fixed --fail-on negligible -o table | tee "grype-report-${ARCH}.txt"
 
       - name: Log in to GHCR for verified per-arch digest staging
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
