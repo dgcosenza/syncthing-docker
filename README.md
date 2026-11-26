@@ -7,6 +7,7 @@
 [![SLSA Level 3](https://img.shields.io/badge/SLSA-Level%203-brightgreen.svg)](#supply-chain-verification)
 [![Architectures](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-informational.svg)](#supported-architectures)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dgcosenza/syncthing-docker/badge)](https://scorecard.dev/viewer/?uri=github.com/dgcosenza/syncthing-docker)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/17174/badge)](https://www.bestpractices.dev/projects/17174)
 [![Docker Pulls](https://img.shields.io/docker/pulls/dgcosenza/syncthing)](https://hub.docker.com/r/dgcosenza/syncthing)
 [![Docker Image Size](https://img.shields.io/docker/image-size/dgcosenza/syncthing/latest)](https://hub.docker.com/r/dgcosenza/syncthing)
 [![Latest Release](https://img.shields.io/github/v/release/dgcosenza/syncthing-docker?label=version)](https://github.com/dgcosenza/syncthing-docker/releases)
