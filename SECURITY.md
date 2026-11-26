@@ -24,11 +24,11 @@ itself should also be reported upstream via
 
 ## Scanning and gates
 
-* **Trivy:** the build fails on any fixable **CRITICAL** or **HIGH** finding
+* **Trivy:** the build fails on any fixable vulnerability of **any severity**
   across Debian OS packages and the compiled Syncthing Go binary. Full reports
   are retained for 90 days and SARIF results are uploaded to GitHub code
   scanning.
-* **Grype:** runs as a blocking gate (`--only-fixed`, severity high/critical),
+* **Grype:** runs as a blocking gate (`--only-fixed --fail-on negligible`, all severities),
   with reports archived for 90 days.
 * **SBOM:** an SPDX JSON software bill of materials is generated with Syft and
   archived for 90 days.
