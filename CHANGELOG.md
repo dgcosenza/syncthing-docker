@@ -6,6 +6,15 @@ All notable changes to this image are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and image tags track
 the upstream `syncthing/syncthing` release version.
 
+## [2.1.7] - 2026-11-27
+
+### Automated Daily Build
+- Verified components: Syncthing `v2.1.7`, Go toolchain `1.27.4`, Base OS `Debian 13.8 (trixie-slim)`.
+- Architectures verified: `linux/amd64, linux/arm64` (native smoke tests + Dive efficiency gate).
+- Upstream status: refreshed base OS, dependencies, and supply-chain attestations.
+- Vulnerability gate: **0 fixable findings of any severity** in Trivy and Grype (SBOM scan) (15 upstream-unfixed).
+- Published multi-arch digest (Docker Hub + GHCR): `dgcosenza/syncthing@sha256:0dbd98c0a085e86530c2ad1ccec4b565f23b759e190cc66c87ddd325d1ca3a64` (Cosign OIDC signed + SPDX/CycloneDX SBOM + SLSA L3 provenance).
+
 ## [2.1.7] - 2026-11-26
 
 ### Automated Daily Build
